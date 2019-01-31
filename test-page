@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" type="text/css" href="https://www.nba.com/.element/media/2.0/teamsites/spurs/Rosalie/img/spurs/slick-theme.css"/>
+    <link rel="stylesheet" type="text/css" href="https://www.nba.com/.element/media/2.0/teamsites/spurs/Rosalie/img/spurs/slick.css"/>
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans:800" rel="stylesheet">
+    <title>Title</title>
+    <style>
+        .slick-next:before{ background-image:url(https://www.nba.com/.element/media/2.0/teamsites/spurs/Rosalie/img/spurs/arrow-point-to-right.png); background-size: 50px 50px;
+            display: inline-block;content: ""; height:50px; width:50px; background-repeat: no-repeat;}
+        .slick-prev:before{background-image:url(https://www.nba.com/.element/media/2.0/teamsites/spurs/Rosalie/img/spurs/arrowhead-thin-outline-to-the-left.png); background-size: 50px 50px; display: inline-block; content: ""; height:50px; width:50px; background-repeat: no-repeat;}
+        .slick-prev {
+
+            z-index: 100; }
+        .slick-next:before{ z-index:100; position:relative}
+
+        a:hover{text-decoration:none;}
+        .api-image{margin-right:0;}
+        .api-headline a{
+            position:relative;
+            color:#ffffff;
+            font-size:80px;
+            font-family:'Open Sans', sans-serif;
+            text-transform: uppercase; text-align: center; font-weight:800;
+        }
+        .title{
+            position:relative;
+        }
+        .api-teaser{
+            position:relative;
+
+            color: #ffffff;
+            font-weight:300; text-transform: uppercase; letter-spacing: 8px;  text-align: center; line-height:1.1; margin-left:15px; margin-right:15px;
+        }
+        .api-buttons{
+            position:relative; bottom:390px; text-align: center;
+        }
+        .btn-default{background-color: #428bca;
+            border-color: #357ebd; color: #ffffff; border-radius:0;}
+        .slick-slide img{filter:brightness(50%); width:100%; margin-top: 10px;}
+
+        @media screen and (min-width: 100px){
+            .api-headline a{
+                position:relative;
+                color:#ffffff;
+                font-size:17px; padding-left:20px; padding-right:20px;}
+            .api-headline-div{
+                position:relative;
+                bottom:160px; text-align: center;
+            }
+            .api-buttons{
+                position:relative; bottom:140px; text-align: center;
+            }
+            .api-teaser{bottom:140px; font-size:12px;}
+            .slick-prev:before{position:relative; bottom:120px; background-size: 20px 20px; height:20px; width:20px; left:35px;}
+            .slick-next:before{position:relative; bottom:120px; background-size: 20px 20px; height:20px; width:20px; right:60px;}
+        }
+        @media screen and (min-width: 480px){
+        .api-headline a{font-size:35px;}
+            .api-headline-div{bottom:250px}
+            .api-teaser{bottom:215px; letter-spacing:10px; font-size:30px;}
+            .api-buttons{bottom: 210px;}
+            .slick-prev:before{left:55px;}
+
+        }
+        @media screen and (min-width: 768px){
+            .api-headline a{
+                position:relative;
+                color:#ffffff;
+                font-size:45px; line-height:82px; }
+            .api-headline-div{
+                position:relative;
+                bottom:400px; text-align: center;
+            }
+            .api-buttons{
+                position:relative; bottom:390px; text-align: center;
+            }
+            .api-teaser{bottom:395px;font-size:25px;}
+            .slick-next:before{background-size:50px 50px; height:50px; width:50px; bottom: 200px;right:90px;}
+            .slick-prev:before{background-size:50px 50px; height:50px; width:50px; bottom: 200px;left: 58px;}
+        }
+        @media screen and (min-width:990px){
+        .api-headline-div a {font-size:80px;}
+            .slick-next:before{right:108px;}
+        }
+        @media screen and (min-width: 1200px){
+
+        }
+    </style>
+</head>
+<body>
+
+<div id="api-content" class="col-xs-12"></div>
+
+<script> var jqo = jQuery; </script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+<script> jQuery = jqo;</script>
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick.min.js"></script>
+
+
+<script>
+    //No Conflict Shorthand
+    console.log("Before Function");
+    (function($){
+        var tag = 'Featured',
+            taggedListFeed = 'https://api.nba.net/2/spurs/article,video,imported_video,gallery?count=8&freeform=' + encodeURIComponent(tag);
+
+        //API Call
+        $.ajax({
+            headers : { 'accessToken': 'internal|bb88df6b4c2244e78822812cecf1ee1b' },
+            url: taggedListFeed
+        })
+            .success(populateList)
+            .fail(function() { console.log('API Call Failed') });
+
+        //Populate the list
+        function populateList(api) {
+
+            if (api && api.response.count) {
+
+                var results = api.response.result;
+
+                results.forEach(function(content, i) {
+
+                    //console.log(content);
+
+                    var url = content.url,
+                        type = content.type,
+                        title = content.title,
+                        buttontype = '',
+                        date= content.changed,
+                        colspan = 'col-xs-5',
+                        fallbackImg = 'https://www.nba.com/spurs/sites/spurs/files/spurslogorelease.jpg',
+                        thumbnail = (content.listImage) ? content.listImage.source: (type === 'gallery' && content.media) ? content.media[0].source: fallbackImg,
+                        teaser = (content.hasOwnProperty('teaser')) ? content.teaser : //Articles + Gallery
+                            (content.hasOwnProperty('description')) ? content.description  :  //Videos
+                                content.headline, //Default
+                        markup = '',
+                        extraClasses = [],
+
+                        videoduration;
+
+                    switch (type) {
+                        case 'video':
+                            extraClasses.push('api-video-thumbnail-image');
+                            buttontype='<span class="glyphicon glyphicon-facetime-video" aria-hidden="true"></span> WATCH VIDEO';
+                            break;
+                        case 'imported_video':
+                            extraClasses.push('api-video-thumbnail-image');
+                            buttontype='<span class="glyphicon glyphicon-facetime-video" aria-hidden="true"></span> WATCH VIDEO';
+                            break;
+                        case 'gallery':
+                            extraClasses.push('api-photo-gallery');
+                            buttontype='<span class="glyphicon glyphicon-picture" aria-hidden="true"></span> VIEW GALLERY';
+                            break;
+                        case 'article':
+                            extraClasses.push('api-article');
+                            buttontype ='<span class="glyphicon glyphicon-align-center" aria-hidden="true"></span> FULL STORY';
+                            break;
+                    }
+
+
+                    var classType = extraClasses.join(' ');
+
+                    /*Image Section*/
+                    markup += '<div class="">';
+                    /*colspan = (i === 0) ? "col-xs-12" : "col-xs-5";*/
+                    colspan = (i === 0) ? "col-xs-12" : "col-xs-12";
+                    markup += '<div class="'+ colspan +' api-image-div ' + classType + '">';
+                    // markup += '<a href="' + url + '" target="_parent">';
+                    markup += '<img class="api-image img-responsive" src="' + thumbnail + '">';
+                    markup += '</div>';
+
+                    /*Content Section*/
+                    /*colspan = (i === 0) ? "col-xs-12" : "col-xs-7";*/
+                    colspan = (i === 0) ? "col-xs-12" : "col-xs-12";
+                    markup += '<div class="'+ colspan +' api-text-container">';
+                    markup += ' <div class="api-headline-div"><h2 class="api-headline"><a href="' + url + '" target="_parent">' + title +'</a></h2></div>';
+                    markup += '<div class="api-teaser">' + teaser +'</div>';
+                    markup += '</div>';
+
+                    /*Button Section*/
+                    // /*colspan = (i === 0) ? "col-xs-12" : "col-xs-7";*/
+                    // colspan = (i === 0) ? "col-xs-12" : "col-xs-12";
+                    // markup += '<div class="'+ colspan +' api-buttons">';
+                    // markup += ' <a href="' + url + '" target="_parent" class="btn btn-default btn-style">READ MORE</a>';
+                    // markup += '</div>';
+
+                    /*Content type buttons*/
+                    colspan = (i=== 0) ? "col-xs-12" : "col-xs-12";
+                    markup +='<div class="' + colspan + ' api-buttons">';
+                    markup += ' <a href="' + url +'"class="btn btn-default btn-style"> '+buttontype+' </a>';
+                    markup += '</div>';
+
+
+
+
+                    /*Append the Content*/
+                    $("#api-content").append(markup);
+                });
+    $('#api-content').slick({
+        infinite: true,
+        slidesToShow: 1,
+        slidesToScroll: 3,
+        autoplay:true,
+        arrows:true
+    });
+            }
+        }
+
+    })(jQuery);
+
+</script>
+
+</body>
+</html>
